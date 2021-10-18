@@ -4,6 +4,8 @@ import shell from 'shelljs';
 import gitP, {SimpleGit} from 'simple-git/promise';
 const gitClone: SimpleGit = gitP();
 
+import fs from 'fs';
+import { setupPack } from './question';
 export const downloadTemplate = [
   {
     name: '微前端（主）',
@@ -22,13 +24,13 @@ export const downloadTemplate = [
     branch: 'main',
   },
   {
-    name: 'Vite',
+    name: 'vue-admin',
     value: 3,
     owner: 'drg',
     www: 'gitee.com',
-    templateName: 'nestjs-template',
+    templateName: 'vue-admin-template',
     branch: 'master',
-  }
+  },
 ];
 
 export const setupDownload = async(option: any) => {
@@ -59,6 +61,11 @@ export const setupDownload = async(option: any) => {
 
     // npm install
     await installPkg(option);
+
+    // handlebars
+    await initPkgJson(option);
+    
+    spinner.succeed('初始化模板成功！');
   } else {
     console.log(chalk.red('Template failed. '));
   }
@@ -67,21 +74,21 @@ export const setupDownload = async(option: any) => {
 // 安装 npm
 async function initGit(option: any) {
   await new Promise((resolve, reject) => {
-    if (!option.git) reject('');
+    if (!option.git) return resolve('');
     const git = shell.which('git');
     if (!git) {
       console.log(chalk.red('Install Git'));
-      reject('');
+      return reject('');
     }
     const spinner = ora('Initializing git repository...\n').start();
     shell.exec('git init', (code) => {
       if (code) {
         spinner.fail();
         console.log(chalk.red('Git Init Fail'));
-        reject('');
+        return reject('');
       } else {
         spinner.succeed();
-        resolve('');
+        return resolve('');
       }
     });
   });
@@ -90,11 +97,11 @@ async function initGit(option: any) {
 // 安装 package
 async function installPkg(option: any) {
   await new Promise((resolve, reject) => {
-    if (!option.npm) reject('');
+    if (!option.npm) return resolve('');
     const npm = shell.which('npm');
     if (!npm) {
       console.log(chalk.red('Install Npm'));
-      reject('');
+      return reject('');
     }
     console.log('Installing npm . This might take a while\n')
   
@@ -103,11 +110,29 @@ async function installPkg(option: any) {
       if (code) {
         spinner.fail();
         console.log(chalk.red('Package Install Fail'));
-        reject('');
+        return reject('');
       } else {
         spinner.succeed();
-        resolve('');
+        return resolve('');
       }
     });
+  });
+}
+
+// json => package.json
+async function initPkgJson(option: any) {
+  await new Promise(( resolve, reject ) => {
+    const spinner = ora('Merging configuration...\n').start();
+    
+    const fileName = `${option.npm ? '.' : `../${option.name}`}/package.json`;
+    const content = fs.readFileSync(fileName, 'utf8');
+    const json = JSON.parse(content);
+    for (let key in setupPack) {
+      const item = setupPack[key];
+      json[item.name] = option[item.name];
+    }
+    fs.writeFileSync(fileName, JSON.stringify(json, null,'\t'));
+    spinner.succeed();
+    return resolve('');
   });
 }

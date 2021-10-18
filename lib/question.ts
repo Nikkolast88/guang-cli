@@ -1,9 +1,11 @@
-import inquirer, { QuestionCollection } from "inquirer";
+import inquirer from "inquirer";
 import fs from 'fs';
 import semver from 'semver';
 import { setupDownload, downloadTemplate } from './download';
+import { Console } from "console";
 
-const questionAnswer: QuestionCollection = [
+// package.json
+export const setupPack = [
     {
       name: 'name',
       type: 'input',
@@ -42,34 +44,53 @@ const questionAnswer: QuestionCollection = [
       name: 'keywords',
       type: 'input',
       message: 'keywords',
+      filter: (value: string) => {
+        const pattern = /[`~!@#_$%^&*()=|{}':;',\\\[\\\].<>/?~！@#￥……&*（）——|{}【】‘；：”“'。，、？]/g;
+        if (String(value).search(pattern) > -1) {
+          return value;
+        } else {
+          return value.split(' ');
+        }
+      },
+      validate: (value: string) => {
+        
+        if (!Array.isArray(value)) {
+          return 'Keywords format is incorrect!';
+        } else {
+          return true;
+        }
+      },
     },
     {
       name: 'author',
       type: 'input',
       message: 'author'
     },
-    {
-      name: 'template',
-      type: 'list',
-      choices: downloadTemplate,
-    },
-    {
-      name: 'git',
-      type: 'confirm',
-      message: 'Initializing git repository ?'
-    },
-    {
-      name: 'npm',
-      type: 'confirm',
-      message: 'Install npm ?'
-    }
   ];
 
+// 提示询问
+const setupAsk = [
+  {
+    name: 'template',
+    type: 'list',
+    choices: downloadTemplate,
+  },
+  {
+    name: 'git',
+    type: 'confirm',
+    message: 'Initializing git repository ?'
+  },
+  {
+    name: 'npm',
+    type: 'confirm',
+    message: 'Install npm ?'
+  },
+];
 async function selectFeature() {
   
 }
 
 export const setupAnswer = async() => {
-  const answer = await inquirer.prompt(questionAnswer);
+  const answer = await inquirer.prompt([...setupPack, ...setupAsk]);
   await setupDownload(answer);
 };
