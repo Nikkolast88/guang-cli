@@ -59,7 +59,7 @@ export const setupDownload = async(option: any) => {
     // git init repository
     await initGit(option);
 
-    // npm install
+    // pnpm install
     await installPkg(option);
 
     // handlebars
@@ -71,7 +71,7 @@ export const setupDownload = async(option: any) => {
   }
 };
 
-// 安装 npm
+// 安装 git init
 async function initGit(option: any) {
   await new Promise((resolve, reject) => {
     if (!option.git) return resolve('');
@@ -97,16 +97,16 @@ async function initGit(option: any) {
 // 安装 package
 async function installPkg(option: any) {
   await new Promise((resolve, reject) => {
-    if (!option.npm) return resolve('');
-    const npm = shell.which('npm');
-    if (!npm) {
-      console.log(chalk.red('Install Npm'));
+    if (!option.pnpm) return resolve('');
+    const pnpm = shell.which('pnpm');
+    if (!pnpm) {
+      console.log(chalk.red('Install Pnpm'));
       return reject('');
     }
-    console.log('Installing npm . This might take a while\n')
+    console.log('Installing pnpm . This might take a while\n')
   
     const spinner = ora('Installing additional dependencies...\n').start();
-    shell.exec('npm install', (code) => {
+    shell.exec('pnpm install', (code) => {
       if (code) {
         spinner.fail();
         console.log(chalk.red('Package Install Fail'));
@@ -124,7 +124,7 @@ async function initPkgJson(option: any) {
   await new Promise(( resolve, reject ) => {
     const spinner = ora('Merging configuration...\n').start();
     
-    const fileName = `${option.npm ? '.' : `../${option.name}`}/package.json`;
+    const fileName = `${option.pnpm ? '.' : `../${option.name}`}/package.json`;
     const content = fs.readFileSync(fileName, 'utf8');
     const json = JSON.parse(content);
     for (let key in setupPack) {

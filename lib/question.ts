@@ -81,9 +81,9 @@ const setupAsk = [
     message: 'Initializing git repository ?'
   },
   {
-    name: 'npm',
+    name: 'pnpm',
     type: 'confirm',
-    message: 'Install npm ?'
+    message: 'Install pnpm ?'
   },
 ];
 async function selectFeature() {

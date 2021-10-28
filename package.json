@@ -9,7 +9,7 @@
   "scripts": {
     "dev": "tsc -w",
     "build": "tsc",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "ts-node ./bin/cli.ts create"
   },
   "repository": {
     "type": "git",
@@ -36,6 +36,7 @@
     "semver": "^7.3.5",
     "shelljs": "^0.8.4",
     "simple-git": "^2.46.0",
+    "ts-node": "^10.4.0",
     "yargs": "^17.2.1"
   },
   "devDependencies": {
